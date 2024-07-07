@@ -1,0 +1,333 @@
+definitions:
+  main.AddUserRequest:
+    properties:
+      passportNumber:
+        type: string
+    required:
+    - passportNumber
+    type: object
+  main.StartTaskRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  main.StopTaskRequest:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  main.Task:
+    properties:
+      end:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      start:
+        format: date-time
+        type: string
+      userId:
+        type: integer
+    type: object
+  main.TaskWithTotalHours:
+    properties:
+      end:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      start:
+        format: date-time
+        type: string
+      totalHours:
+        type: number
+      userId:
+        type: integer
+    type: object
+  main.UpdateUserRequest:
+    properties:
+      passportNumber:
+        type: string
+    type: object
+  main.User:
+    properties:
+      id:
+        type: integer
+      passportNumber:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all users with filtering and pagination
+      operationId: get-users
+      parameters:
+      - description: Filter by passport number
+        in: query
+        name: passportNumber
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Adds a new user
+      operationId: add-user
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.AddUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add User
+      tags:
+      - user
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user
+      operationId: delete-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete User
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Updates a user's information
+      operationId: update-user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update User
+      tags:
+      - user
+  /user/{id}/tasks:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves tasks for a user, calculates total working hours for
+        each task, and returns them sorted by total working hours
+      operationId: get-user-tasks
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.TaskWithTotalHours'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get User Tasks
+      tags:
+      - user
+  /user/{id}/tasks/start:
+    post:
+      consumes:
+      - application/json
+      description: Starts a task for a user
+      operationId: start-task
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/main.StartTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Start Task
+      tags:
+      - user
+  /user/{id}/tasks/stop:
+    post:
+      consumes:
+      - application/json
+      description: Stops a task for a user
+      operationId: stop-task
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/main.StopTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Stop Task
+      tags:
+      - user
+swagger: "2.0"
